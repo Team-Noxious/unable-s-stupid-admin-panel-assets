@@ -1130,7 +1130,7 @@ end
 colrr = Color3.new()
 maincol = Color3.new()
 -- Define the static color you want to use
-local staticColor = Color3.fromHex("4051ED")
+local staticColor = Color3.fromHex("2d40ed")
 
 -- Coroutine to update color continuously (but with the static color now)
 coroutine.resume(coroutine.create(function()
