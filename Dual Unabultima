@@ -1073,8 +1073,8 @@ tr2.Attachment1 = att4
 
 local Lite = it("PointLight",Torso)
 Lite.Color = Color3.new(.7,0,1)
-Lite.Range = 8
-Lite.Brightness = 10
+Lite.Range = 19
+Lite.Brightness = 5
 Lite.Shadows = true
 
 musid = "rbxassetid://413641131"
