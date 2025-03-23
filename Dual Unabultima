@@ -1,9 +1,13 @@
-----------------
---Dual Ultima--
-----------------------------------------------------------------
---This edit is by CKbackup (Sugarie Saffron)--------------------
---Credits to whoever the hell made the original Solaris---------
-----------------------------------------------------------------
+--[[---------------------------------------------------------------------------------------------------------------------------
+  _____     __  __     ______     __                   __  __     __         ______   __     __    __     ______    
+ /\  __-.  /\ \/\ \   /\  __ \   /\ \                 /\ \/\ \   /\ \       /\__  _\ /\ \   /\ "-./  \   /\  __ \   
+ \ \ \/\ \ \ \ \_\ \  \ \  __ \  \ \ \____   (unab-)  \ \ \_\ \  \ \ \____  \/_/\ \/ \ \ \  \ \ \-./\ \  \ \  __ \  
+  \ \____-  \ \_____\  \ \_\ \_\  \ \_____\            \ \_____\  \ \_____\    \ \_\  \ \_\  \ \_\ \ \_\  \ \_\ \_\ 
+   \/____/   \/_____/   \/_/\/_/   \/_____/             \/_____/   \/_____/     \/_/   \/_/   \/_/  \/_/   \/_/\/_/ 
+   
+   Edit by unable & CKBackup (Sugarie Saffron) -- Credits to original 'Dual Ultima' script
+   
+---------------------------------------------------------------------------------------------------------------------------]]--
 
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character 
@@ -1585,6 +1589,7 @@ function Sheathe()
 		handle2weld.C0=clerp(handle2weld.C0,cf(-3,3,0.5)*angles(math.rad(90),math.rad(-150),math.rad(-90)),.3)
 	end
 	attack = false
+	go = false
 end
 
 function Unsheathe()
@@ -1624,6 +1629,7 @@ mouse.Button1Down:connect(function()
 	end
 end)
 
+go = true
 
 mouse.KeyDown:connect(function(k)
 	k=k:lower()
@@ -1665,19 +1671,25 @@ mouse.KeyDown:connect(function(k)
 		end
 	elseif k=='f' then
 		if attack==false and CurrentMode == "Unsheathed" then
+			go = false
 			Sheathe()
+			Humanoid.WalkSpeed = 16
 		elseif k=='f' then
 			if attack==false and Sit == false and CurrentMode == "Sheathed" then
+				go = false
 				Unsheathe()
+				go = true
 			end
 		end
 	elseif k=='t' then
 		if attack==false and Sit == false and CurrentMode == "Sheathed" then
 			Sit = true
+			go = false
 			Humanoid.WalkSpeed = 0
 		elseif k=='t' then
 			if attack==false and Sit == true and CurrentMode == "Sheathed" then
 				Sit = false
+				go = false
 				Humanoid.WalkSpeed = 16
 			end
 		end
@@ -1685,14 +1697,18 @@ mouse.KeyDown:connect(function(k)
 	end
 end)
 
-
 local sine = 0
 local change = 1
 local val = 0
 
 while true do
 	swait()
-	Humanoid.WalkSpeed = 60
+	spawn(function()
+		while go == true do
+			Humanoid.WalkSpeed = 60
+			wait(0)
+		end
+	end)
 	sine = sine + change
 	local torvel=(RootPart.Velocity*Vector3.new(1,0,1)).magnitude 
 	local velderp=RootPart.Velocity.y
