@@ -9,44 +9,6 @@
    
 ---------------------------------------------------------------------------------------------------------------------------]]--
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
--- Function to disable the idle animation
-local function disableIdleAnimation()
-	-- Wait until the character exists
-	while not player.Character do
-		task.wait()
-	end
-
-	-- Get the character and the Animate script
-	local character = player.Character
-	local animateScript = character:FindFirstChild("Animate")
-
-	-- If the Animate script exists, disable the idle animations
-	if animateScript then
-		-- Locate the idle animation tracks
-		local idle = animateScript:FindFirstChild("idle")
-		if idle then
-			-- Disable the animations by setting their weight to 0
-			for _, child in ipairs(idle:GetChildren()) do
-				if child:IsA("Animation") then
-					child:Destroy() -- Alternatively, set child.AnimationId = ""
-				end
-			end
-		end
-	end
-end
-
--- Call the function when the player's character is loaded
-disableIdleAnimation()
-
--- Listen for character respawn to reapply the change
-player.CharacterAdded:Connect(function()
-	task.wait(1) -- Allow time for the character to load
-	disableIdleAnimation()
-end)
-
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character 
 PlayerGui=Player.PlayerGui
