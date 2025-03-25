@@ -9,6 +9,44 @@
    
 ---------------------------------------------------------------------------------------------------------------------------]]--
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Function to disable the idle animation
+local function disableIdleAnimation()
+	-- Wait until the character exists
+	while not player.Character do
+		task.wait()
+	end
+
+	-- Get the character and the Animate script
+	local character = player.Character
+	local animateScript = character:FindFirstChild("Animate")
+
+	-- If the Animate script exists, disable the idle animations
+	if animateScript then
+		-- Locate the idle animation tracks
+		local idle = animateScript:FindFirstChild("idle")
+		if idle then
+			-- Disable the animations by setting their weight to 0
+			for _, child in ipairs(idle:GetChildren()) do
+				if child:IsA("Animation") then
+					child:Destroy() -- Alternatively, set child.AnimationId = ""
+				end
+			end
+		end
+	end
+end
+
+-- Call the function when the player's character is loaded
+disableIdleAnimation()
+
+-- Listen for character respawn to reapply the change
+player.CharacterAdded:Connect(function()
+	task.wait(1) -- Allow time for the character to load
+	disableIdleAnimation()
+end)
+
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character 
 PlayerGui=Player.PlayerGui
@@ -1571,16 +1609,16 @@ function ContAttack()
 end
 
 function Sheathe()
+	emotion("neutral")
 	attack = true
 
-	-- Create a new Sound object
 	local sound = Instance.new("Sound")
-	sound.SoundId = "rbxassetid://273797222" -- Replace with the sound ID
-	sound.Volume = 1 -- Set the volume
-	sound.Pitch = 0.9 -- Set the pitch
+	sound.SoundId = "rbxassetid://273797222"
+	sound.Volume = 1
+	sound.Pitch = 0.9
 	sound.TimePosition = 0.5
-	sound.Parent = Hitbox -- Set the parent to the Hitbox part
-	sound:Play() -- Play the sound
+	sound.Parent = Hitbox
+	sound:Play()
 
 	CurrentMode = "Sheathed"
 	for i = 0, 1, 0.1 do
@@ -1597,7 +1635,6 @@ function Sheathe()
 		handle2weld.C0 = clerp(handle2weld.C0, cf(-3, 3, 0.5) * angles(math.rad(90), math.rad(-150), math.rad(-90)), 0.3)
 	end
 
-	-- Clean up the sound after it finishes playing
 	sound.Ended:Connect(function()
 		sound:Destroy()
 	end)
@@ -1606,7 +1643,82 @@ function Sheathe()
 	go = false
 end
 
+local emotions = {
+	angry = "rbxassetid://16127585646",
+	neutral = "rbxassetid://16116369076",
+	blink = "rbxassetid://16128235862"
+}
+
+cemotion = "neutral"
+local resting = false
+local blinking = true
+
+local function updh(textureId)
+	if not player.Character then return end
+
+	for _, accessory in ipairs(player.Character:GetChildren()) do
+		if accessory:IsA("Accessory") and (accessory.Name:lower():find("hi chat") or accessory.Name:lower():find("cyberc")) then
+			local handle = accessory:FindFirstChild("Handle")
+			if handle then
+				local mesh = handle:FindFirstChildOfClass("SpecialMesh")
+				if mesh then
+					mesh.TextureId = textureId
+				end
+			end
+		end
+	end
+end
+
+function emotion(emotion)
+	if emotions[emotion] then
+		cemotion = emotion
+		updh(emotions[emotion])
+	end
+end
+
+function blink()
+	if resting or not blinking or not emotions[cemotion] then return end
+
+	updh(emotions["blink"])
+
+	task.delay(0.2, function()
+		updh(emotions[cemotion])
+	end)
+end
+
+function setresting(enabled)
+	resting = enabled
+	blinking = not enabled
+
+	if resting then
+		updh(emotions["blink"])
+	else
+		updh(emotions[cemotion])
+	end
+end
+
+spawn(function()
+	while true do
+		wait(math.random(3, 5))
+		if not resting and blinking then
+			blink()
+		end
+	end
+end)
+
+makesure = false
+
+spawn(function()
+	while makesure == false do
+		emotion("angry")
+		wait(0)
+	end
+end)
+
+spawn(function() wait(2) makesure = true end)
+
 function Unsheathe()
+	emotion("angry")
 	attack = true
 	CurrentMode = "Unsheathed"
 	so("http://www.roblox.com/asset/?id=239169404",Hitbox,1,.9) 
@@ -1698,11 +1810,13 @@ mouse.KeyDown:connect(function(k)
 	elseif k=='t' then
 		if attack==false and Sit == false and CurrentMode == "Sheathed" then
 			Sit = true
+			setresting(true)
 			go = false
 			Humanoid.WalkSpeed = 0
 		elseif k=='t' then
 			if attack==false and Sit == true and CurrentMode == "Sheathed" then
 				Sit = false
+				setresting(false)
 				go = false
 				Humanoid.WalkSpeed = 16
 			end
