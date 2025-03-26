@@ -1611,9 +1611,16 @@ local emotions = {
 	blink = "rbxassetid://140719110059829"
 }
 
+local speakingTextures = {
+	angry = "rbxassetid://120265646936913",
+	neutral = "rbxassetid://124616696573508",
+	blink = "rbxassetid://110245971364225"
+}
+
 cemotion = "neutral"
 local resting = false
 local blinking = true
+local speaking = false -- Indicates whether the player is currently speaking
 
 local function updh(textureId)
 	if not player.Character then return end
@@ -1659,6 +1666,34 @@ function setresting(enabled)
 	end
 end
 
+function speak(enabled)
+	speaking = enabled
+
+	if speaking then
+		spawn(function()
+			while speaking do
+				-- Determine the current emotion or resting state for the speaking texture
+				local currentEmotion = resting and "blink" or cemotion
+
+				-- Alternate between the normal and speaking texture
+				if emotions[currentEmotion] and speakingTextures[currentEmotion] then
+					updh(speakingTextures[currentEmotion])
+					wait(0.15) -- Adjust the timing for faster/slower "speaking"
+					updh(emotions[currentEmotion])
+					wait(0.15)
+				else
+					break
+				end
+			end
+		end)
+	else
+		-- Revert to the current emotion's normal texture when speaking stops
+		local currentEmotion = resting and "blink" or cemotion
+		updh(emotions[currentEmotion])
+	end
+end
+
+-- Handle blinking
 spawn(function()
 	while true do
 		wait(math.random(3, 5))
@@ -1668,16 +1703,10 @@ spawn(function()
 	end
 end)
 
-makesure = false
-
-spawn(function()
-	while makesure == false do
-		emotion("angry")
-		wait(0)
-	end
-end)
-
-spawn(function() wait(2) makesure = true end)
+-- Set initial emotion and testing
+spawn(function() emotion("angry") end)
+spawn(function() setresting(false) end)
+spawn(function() speak(false) end)
 
 function Unsheathe()
 	emotion("angry")
@@ -1718,6 +1747,7 @@ mouse.Button1Down:connect(function()
 end)
 
 go = true
+local canspeak = true
 
 mouse.KeyDown:connect(function(k)
 	k=k:lower()
@@ -1735,6 +1765,29 @@ mouse.KeyDown:connect(function(k)
 			mus.Looped = true
 			mus.Volume = 1
 			mus:Play()
+		end
+	elseif k=='y' then
+		if canspeak == true then
+			canspeak = false
+			musid = "rbxassetid://80213054222854"
+			mus.SoundId = musid
+			mus.PlaybackSpeed = 0.7
+			mus.TimePosition = 1.18
+			mus.Volume = 0.4
+			mus.Parent = Head
+			local speakng = true
+			spawn(function()
+				while speakng == true do
+					mus:Play()
+					wait(0.06)
+				end
+			end)
+			speak(true)
+			wait(1.1)
+			speakng = false
+			speak(false)
+			canspeak = true
+			mus:Stop()
 		end
 	elseif k=='l' then
 		musid = "rbxassetid://147930134"
