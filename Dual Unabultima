@@ -1678,9 +1678,9 @@ function speak(enabled)
 				-- Alternate between the normal and speaking texture
 				if emotions[currentEmotion] and speakingTextures[currentEmotion] then
 					updh(speakingTextures[currentEmotion])
-					wait(0.15) -- Adjust the timing for faster/slower "speaking"
+					wait(0.1) -- Adjust the timing for faster/slower "speaking"
 					updh(emotions[currentEmotion])
-					wait(0.15)
+					wait(0.1)
 				else
 					break
 				end
