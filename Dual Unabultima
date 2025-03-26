@@ -9,6 +9,150 @@
    
 ---------------------------------------------------------------------------------------------------------------------------]]--
 
+testgaem = 118022198489171
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+if game.PlaceId ~= testgaem then
+	if game:GetService("RunService"):IsClient() then error("unavailable") end
+	local Player,game,owner = owner,game
+	local RealPlayer = Player
+	do
+		local RealPlayer = RealPlayer
+		script.Parent = RealPlayer.Character
+
+		local Disconnect_Function = function(this)
+			this[1].Functions[this[2]] = nil
+		end
+		local Disconnect_Metatable = {__index={disconnect=Disconnect_Function,Disconnect=Disconnect_Function}}
+		local FakeEvent_Metatable = {__index={
+			Connect = function(this,f)
+				local i = tostring(math.random(0,10000))
+				while this.Functions[i] do
+					i = tostring(math.random(0,10000))
+				end
+				this.Functions[i] = f
+				return setmetatable({this,i},Disconnect_Metatable)
+			end
+		}}
+		FakeEvent_Metatable.__index.connect = FakeEvent_Metatable.__index.Connect
+		local function fakeEvent()
+			return setmetatable({Functions={}},FakeEvent_Metatable)
+		end
+
+		local FakeMouse = {Hit=CFrame.new(),KeyUp=fakeEvent(),KeyDown=fakeEvent(),Button1Up=fakeEvent(),Button1Down=fakeEvent(),Button2Up=fakeEvent(),Button2Down=fakeEvent()}
+		FakeMouse.keyUp = FakeMouse.KeyUp
+		FakeMouse.keyDown = FakeMouse.KeyDown
+		local UIS = {InputBegan=fakeEvent(),InputEnded=fakeEvent()}
+		local CAS = {Actions={},BindAction=function(self,name,fun,touch,...)
+			CAS.Actions[name] = fun and {Name=name,Function=fun,Keys={...}} or nil
+		end}
+		CAS.UnbindAction = CAS.BindAction
+
+		local function TriggerEvent(self,ev,...)
+			for _,f in pairs(self[ev].Functions) do
+				f(...)
+			end
+		end
+		FakeMouse.TriggerEvent = TriggerEvent
+		UIS.TriggerEvent = TriggerEvent
+
+		local Event = Instance.new("RemoteEvent")
+		Event.Name = "UserInput_Event"
+		Event.OnServerEvent:Connect(function(plr,io)
+			if plr~=RealPlayer then return end
+			FakeMouse.Target = io.Target
+			FakeMouse.Hit = io.Hit
+			if not io.isMouse then
+				local b = io.UserInputState == Enum.UserInputState.Begin
+				if io.UserInputType == Enum.UserInputType.MouseButton1 then
+					return FakeMouse:TriggerEvent(b and "Button1Down" or "Button1Up")
+				end
+				if io.UserInputType == Enum.UserInputType.MouseButton2 then
+					return FakeMouse:TriggerEvent(b and "Button2Down" or "Button2Up")
+				end
+				for _,t in pairs(CAS.Actions) do
+					for _,k in pairs(t.Keys) do
+						if k==io.KeyCode then
+							t.Function(t.Name,io.UserInputState,io)
+						end
+					end
+				end
+				FakeMouse:TriggerEvent(b and "KeyDown" or "KeyUp",io.KeyCode.Name:lower())
+				UIS:TriggerEvent(b and "InputBegan" or "InputEnded",io,false)
+			end
+		end)
+		Event.Parent = NLS([==[local Event = script:WaitForChild("UserInput_Event")
+	local Mouse = owner:GetMouse()
+	local UIS = game:GetService("UserInputService")
+	local input = function(io,RobloxHandled)
+		if RobloxHandled then return end
+		Event:FireServer({KeyCode=io.KeyCode,UserInputType=io.UserInputType,UserInputState=io.UserInputState,Hit=Mouse.Hit,Target=Mouse.Target})
+	end
+	UIS.InputBegan:Connect(input)
+	UIS.InputEnded:Connect(input)
+
+	local h,t
+	local HB = game:GetService("RunService").Heartbeat
+	while true do
+		if h~=Mouse.Hit or t~=Mouse.Target then
+			h,t=Mouse.Hit,Mouse.Target
+			Event:FireServer({isMouse=true,Target=t,Hit=h})
+		end
+		for i=1,2 do
+			HB:Wait()
+		end
+	end]==],script)
+
+		local RealGame = game
+
+		local FakeService_Metatable = {
+			__index = function(self,k)
+				local s = rawget(self,"_RealService")
+				if s then
+					return typeof(s[k])=="function"
+						and function(_,...)return s[k](s,...)end or s[k]
+				end
+			end,
+			__newindex = function(self,k,v)
+				local s = rawget(self,"_RealService")
+				if s then s[k]=v end
+			end
+		}
+		local function FakeService(t,RealService)
+			t._RealService = typeof(RealService)=="string" and RealGame:GetService(RealService) or RealService
+			return setmetatable(t,FakeService_Metatable)
+		end
+
+		local FakeGame = {
+			GetService = function(self,s)
+				return rawget(self,s) or RealGame:GetService(s)
+			end,
+			Players = FakeService({
+				LocalPlayer = FakeService({GetMouse=function(self)return FakeMouse end},Player)
+			},"Players"),
+			UserInputService = FakeService(UIS,"UserInputService"),
+			ContextActionService = FakeService(CAS,"ContextActionService"),
+			RunService = FakeService({
+				_btrs = {},
+				RenderStepped = RealGame:GetService("RunService").Heartbeat,
+				BindToRenderStep = function(self,name,_,fun)
+					self._btrs[name] = self.Heartbeat:Connect(fun)
+				end,
+				UnbindFromRenderStep = function(self,name)
+					self._btrs[name]:Disconnect()
+				end,
+			},"RunService")
+		}
+		rawset(FakeGame.Players,"localPlayer",FakeGame.Players.LocalPlayer)
+		FakeGame.service = FakeGame.GetService
+		FakeService(FakeGame,game)
+		game,owner = FakeGame,FakeGame.Players.LocalPlayer
+	end
+end
+
+-------------------------------------------------------------------------------------------------------------------------------
+
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character 
 PlayerGui=Player.PlayerGui
@@ -65,9 +209,7 @@ mana=0
 local CurrentMode = "Unsheathed"
 
 mouse=Player:GetMouse()
---save shoulders 
 RSH, LSH=nil, nil 
---welds 
 RW, LW=Instance.new("Weld"), Instance.new("Weld") 
 RW.Name="Right Shoulder" LW.Name="Left Shoulder"
 LH=Torso["Left Hip"]
@@ -80,20 +222,17 @@ player=Player
 ch=Character
 RSH=ch.Torso["Right Shoulder"] 
 LSH=ch.Torso["Left Shoulder"] 
--- 
 RSH.Parent=nil 
 LSH.Parent=nil 
--- 
 RW.Name="Right Shoulder"
 RW.Part0=ch.Torso 
-RW.C0=cf(1.5, 0.5, 0) --* CFrame.fromEulerAnglesXYZ(1.3, 0, -0.5) 
+RW.C0=cf(1.5, 0.5, 0)
 RW.C1=cf(0, 0.5, 0) 
 RW.Part1=ch["Right Arm"] 
 RW.Parent=ch.Torso 
--- 
 LW.Name="Left Shoulder"
 LW.Part0=ch.Torso 
-LW.C0=cf(-1.5, 0.5, 0) --* CFrame.fromEulerAnglesXYZ(1.7, 0, 0.8) 
+LW.C0=cf(-1.5, 0.5, 0)
 LW.C1=cf(0, 0.5, 0) 
 LW.Part1=ch["Left Arm"] 
 LW.Parent=ch.Torso 
@@ -167,16 +306,6 @@ function swait(num)
 		end
 	end
 end
-
---        function swait(num)
---    if num==0 or num==nil then
---    game:service'RunService'.Heartbeat:wait(0)
---    else
---    for i=0,num do
---    game:service'RunService'.Heartbeat:wait(0)
---    end
---    end
---    end
 
 function mesh(Mesh,part,meshtype,meshid,offset,scale)
 	local mesh=it(Mesh)
@@ -373,7 +502,7 @@ function QuaternionSlerp(a, b, t)
 	return a[1]*startInterp + b[1]*finishInterp, a[2]*startInterp + b[2]*finishInterp, a[3]*startInterp + b[3]*finishInterp, a[4]*startInterp + b[4]*finishInterp 
 end
 
-function rayCast(Pos, Dir, Max, Ignore)  -- Origin Position , Direction, MaxDistance , IgnoreDescendants
+function rayCast(Pos, Dir, Max, Ignore)
 	return game:service("Workspace"):FindPartOnRay(Ray.new(Pos, Dir.unit * (Max or 999.999)), Ignore) 
 end 
 
@@ -402,7 +531,6 @@ Damagefunc=function(Part,hit,minim,maxim,knockback,Type,Property,Delay,Knockback
 		c.Parent=h
 		game:GetService("Debris"):AddItem(c,.5)
 		local Damage=math.random(minim,maxim)
-		--                h:TakeDamage(Damage)
 		local  blocked=false
 		local  block=hit.Parent:findFirstChild("Block")
 		if block~=nil then
@@ -1054,7 +1182,6 @@ local tr1 = Instance.new("Trail",Hitbox)
 tr1.Color = ColorSequence.new(Part.BrickColor.Color)
 tr1.Transparency = NumberSequence.new(0,1)
 tr1.Lifetime = .5
---tr1.Enabled = false
 tr1.LightEmission = 1
 tr1.Attachment0 = att1
 tr1.Attachment1 = att2
@@ -1066,7 +1193,6 @@ local tr2 = Instance.new("Trail",Hitbox2)
 tr2.Color = ColorSequence.new(Part.BrickColor.Color)
 tr2.Transparency = NumberSequence.new(0,1)
 tr2.Lifetime = .5
---tr2.Enabled = false
 tr2.LightEmission = 1
 tr2.Attachment0 = att3
 tr2.Attachment1 = att4
@@ -1097,7 +1223,6 @@ function BreakEffect(brickcolor,cframe,x1,y1,z1)
 		for i=0,1,0.05 do
 			swait()
 			CF=CF*cf(0,1,0)
-			--Part.CFrame=Part.CFrame*euler(0.5,0,0)*cf(0,1,0)
 			Part.CFrame=CF*euler(Numbb,0,0)
 			Part.Transparency=i
 			Numbb=Numbb+randnumb
@@ -1105,7 +1230,6 @@ function BreakEffect(brickcolor,cframe,x1,y1,z1)
 		Part.Parent=nil
 	end),prt)
 end
---BreakEffect(BrickColor.new("New Yeller"),Hitbox.CFrame,0.5,math.random(5,20),0.5)
 
 neons = {}
 for i, v in pairs(Character:GetDescendants()) do
@@ -1129,17 +1253,14 @@ end
 
 colrr = Color3.new()
 maincol = Color3.new()
--- Define the static color you want to use
 local staticColor = Color3.fromHex("#3244ed")
 
--- Coroutine to update color continuously (but with the static color now)
 coroutine.resume(coroutine.create(function()
 	while true do
-		-- Directly set the color to the static value
 		colrr = staticColor
-		updateCol2(colrr)  -- Assuming this updates some part of the game with the new color
-		maincol = Part.Color  -- Set the part's color to the current color
-		swait()  -- Wait briefly before repeating (although the color won't change)
+		updateCol2(colrr)
+		maincol = Part.Color
+		swait()
 	end
 end))
 
@@ -1173,17 +1294,6 @@ function attackone()
 	end)
 	for i=0,1,0.1 do
 		swait()
-		--                local blcf = Hitbox.CFrame*CFrame.new(0,.3,0)
-		--if scfr and (Hitbox.Position-scfr.p).magnitude > .1 then
-		--local h = 5
-		--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--scfr = blcf
-		--elseif not scfr then
-		--scfr = blcf
-		--end
 		RW.C0=clerp(RW.C0,cf(1.5,0.5,0)*euler(math.rad(110),math.rad(-90),math.rad(20)),.3)
 		LW.C0=clerp(LW.C0,cf(-1.5,0.5,0)*euler(math.rad(-10),math.rad(-20),math.rad(-50)),.3)
 		LH.C0=clerp(LH.C0,cf(-1,-1,0)*angles(math.rad(0),math.rad(-120),math.rad(5))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
@@ -1196,7 +1306,6 @@ function attackone()
 	attack=false
 	con:disconnect()
 	scfr = nil
-	--tr1.Enabled = false
 	pcall(function()
 		hitconasdf:disconnect()
 	end)
@@ -1229,17 +1338,6 @@ function attacktwo()
 	end)
 	for i=0,1,0.1 do
 		swait()
-		--local blcf = Hitbox.CFrame*CFrame.new(0,.3,0)
-		--if scfr and (Hitbox.Position-scfr.p).magnitude > .1 then
-		--local h = 5
-		--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--scfr = blcf
-		--elseif not scfr then
-		--scfr = blcf
-		--end
 		RW.C0=clerp(RW.C0,cf(1.5,0.5,0)*euler(math.rad(0),math.rad(-50),math.rad(90)),.3)
 		LW.C0=clerp(LW.C0,cf(-1.5,0.5,0)*euler(math.rad(-10),math.rad(-20),math.rad(-90)),.3)
 		LH.C0=clerp(LH.C0,cf(-1,-1,0)*angles(math.rad(0),math.rad(-50),math.rad(-5))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
@@ -1284,17 +1382,6 @@ function attack2one()
 	end)
 	for i=0,1,0.1 do
 		swait()
-		--                local blcf = Hitbox2.CFrame*CFrame.new(0,.3,0)
-		--if scfr and (Hitbox2.Position-scfr.p).magnitude > .1 then
-		--local h = 5
-		--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--scfr = blcf
-		--elseif not scfr then
-		--scfr = blcf
-		--end
 		LH.C0=clerp(LH.C0,cf(-1,-1,0)*angles(math.rad(0),math.rad(-130),math.rad(5))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
 		RH.C0=clerp(RH.C0,cf(1,-1,0)*angles(math.rad(0),math.rad(50),math.rad(10))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
 		RW.C0 = clerp(RW.C0,CFrame.new(1.40839434, 0.633969903, 0.140334338, 0.766044557, -0.642787576, 1.93715096e-06, 0.492405057, 0.586823642, -0.642787158, 0.41317451, 0.49240455, 0.766044974),0.3)
@@ -1306,7 +1393,6 @@ function attack2one()
 	attack=false
 	con:disconnect()
 	scfr = nil
-	--tr2.Enabled = false
 	pcall(function()
 		hitconasdf:disconnect()
 	end)
@@ -1353,17 +1439,6 @@ function Stab()
 	so("http://www.roblox.com/asset/?id=231917758",Hitbox,1,.9) 
 	for i=0,1,0.1 do
 		swait()
-		--local blcf = Hitbox.CFrame*CFrame.new(0,.3,0)
-		--if scfr and (Hitbox.Position-scfr.p).magnitude > .1 then
-		--local h = 5
-		--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-		--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-		--scfr = blcf
-		--elseif not scfr then
-		--scfr = blcf
-		--end
 		RootJoint.C0=clerp(RootJoint.C0,RootCF*cf(0,0,0)*angles(math.rad(20),math.rad(0),math.rad(0)),.4)
 		Torso.Neck.C0=clerp(Torso.Neck.C0,necko*angles(math.rad(10),math.rad(0),math.rad(0)),.4)
 		RW.C0=clerp(RW.C0,cf(1.2,0.5,0)*angles(math.rad(20),math.rad(100),math.rad(90)),.3)
@@ -1379,8 +1454,6 @@ function Stab()
 	swait(20)
 	attack=false
 	scfr = nil
-	--tr1.Enabled = false
-	--tr2.Enabled = false
 	pcall(function()
 		hitconasdf:disconnect()
 		hitconasdf2:disconnect()
@@ -1396,10 +1469,7 @@ function Spin()
 		local hum12 = hit.Parent:FindFirstChildOfClass("Humanoid")
 		if hum12 and not hum12:IsDescendantOf(Character) then
 			so('http://roblox.com/asset/?id=154965973',Hitbox,1,1)
-			--                        for i = 1,2 do
 			BreakEffect(BrickColor.new("White"),hit.Parent.Head.CFrame*CFrame.new(0,-2,0),0.5,math.random(5,20),0.5)
-			--                        end
-			--hitconasdf:disconnect()
 		end
 	end) 
 	local con2=Hitbox2.Touched:connect(function(hit) Damagefunc(Hitbox2,hit,30,50,math.random(10,20),"Normal",RootPart,.2,1) end) 
@@ -1407,10 +1477,7 @@ function Spin()
 		local hum12 = hit.Parent:FindFirstChildOfClass("Humanoid")
 		if hum12 and not hum12:IsDescendantOf(Character) then
 			so('http://roblox.com/asset/?id=154965973',Hitbox2,1,1)
-			--                        for i = 1,2 do
 			BreakEffect(BrickColor.new("White"),hit.Parent.Head.CFrame*CFrame.new(0,-2,0),0.5,math.random(5,20),0.5)
-			--                        end
-			--hitcon2asdf:disconnect()
 		end
 	end) 
 	for i=0,1,1 do
@@ -1419,17 +1486,6 @@ function Spin()
 		swait()
 		for i=0,1,0.1 do
 			swait()
-			--local blcf = Hitbox.CFrame*CFrame.new(0,.3,0)
-			--if scfr and (Hitbox.Position-scfr.p).magnitude > .1  then
-			--local h = 5
-			--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--scfr = blcf
-			--elseif not scfr then
-			--scfr = blcf
-			--end
 			RW.C0=clerp(RW.C0,cf(1,0.5,-.5)*angles(math.rad(90),math.rad(0),math.rad(0)),.3)
 			LW.C0=clerp(LW.C0,cf(-1,0.5,-.5)*angles(math.rad(90),math.rad(0),math.rad(0)),.3)
 			LH.C0=clerp(LH.C0,cf(-1,-.5,-1)*angles(math.rad(-20),math.rad(-90),math.rad(0)),.3)
@@ -1443,8 +1499,6 @@ function Spin()
 	con:disconnect()
 	con2:disconnect()
 	scfr = nil
-	--tr1.Enabled = false
-	--tr2.Enabled = false
 	pcall(function()
 		hitconasdf:disconnect()
 		hitcon2asdf:disconnect()
@@ -1460,10 +1514,7 @@ function ContAttack()
 		local hum12 = hit.Parent:FindFirstChildOfClass("Humanoid")
 		if hum12 and not hum12:IsDescendantOf(Character) then
 			so('http://roblox.com/asset/?id=154965973',Hitbox,1,1)
-			--                        for i = 1,2 do
 			BreakEffect(BrickColor.new("White"),hit.Parent.Head.CFrame*CFrame.new(0,-2,0),0.5,math.random(5,20),0.5)
-			--                        end
-			--hitconasdf:disconnect()
 		end
 	end) 
 	local con2=Hitbox2.Touched:connect(function(hit) Damagefunc(Hitbox2,hit,30,50,math.random(10,20),"Normal",RootPart,.2,1) end) 
@@ -1471,10 +1522,7 @@ function ContAttack()
 		local hum12 = hit.Parent:FindFirstChildOfClass("Humanoid")
 		if hum12 and not hum12:IsDescendantOf(Character) then
 			so('http://roblox.com/asset/?id=154965973',Hitbox2,1,1)
-			--                        for i = 1,2 do
 			BreakEffect(BrickColor.new("White"),hit.Parent.Head.CFrame*CFrame.new(0,-2,0),0.5,math.random(5,20),0.5)
-			--                        end
-			--hitcon2asdf:disconnect()
 		end
 	end) 
 	for i=1,4 do
@@ -1493,17 +1541,6 @@ function ContAttack()
 		so("http://www.roblox.com/asset/?id=231917758",Hitbox,1,1) 
 		for i=0,1,0.2 do
 			swait()
-			--local blcf = Hitbox.CFrame*CFrame.new(0,.3,0)
-			--if scfr and (Hitbox.Position-scfr.p).magnitude > .1 then
-			--local h = 5
-			--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--scfr = blcf
-			--elseif not scfr then
-			--scfr = blcf
-			--end
 			RW.C0=clerp(RW.C0,cf(1.5,0.5,0)*euler(math.rad(110),math.rad(-90),math.rad(20)),.3)
 			LW.C0=clerp(LW.C0,cf(-1.5,0.5,0)*euler(math.rad(-10),math.rad(-20),math.rad(-50)),.3)
 			LH.C0=clerp(LH.C0,cf(-1,-1,0)*angles(math.rad(0),math.rad(-120),math.rad(5))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
@@ -1539,16 +1576,6 @@ function ContAttack()
 		for i=0,1,0.2 do
 			swait()
 			local blcf = Hitbox2.CFrame*CFrame.new(0,.3,0)
-			--if scfr and (Hitbox2.Position-scfr.p).magnitude > .1 then
-			--local h = 5
-			--local a,b = Triangle((scfr*CFrame.new(0,h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p,(blcf*CFrame.new(0,h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--local a,b = Triangle((blcf*CFrame.new(0,h/2,0)).p,(blcf*CFrame.new(0,-h/2,0)).p,(scfr*CFrame.new(0,-h/2,0)).p)
-			--if a then game.Debris:AddItem(a,1) end if b then game.Debris:AddItem(b,1) end
-			--scfr = blcf
-			--elseif not scfr then
-			--scfr = blcf
-			--end
 			LH.C0=clerp(LH.C0,cf(-1,-1,0)*angles(math.rad(0),math.rad(-130),math.rad(5))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
 			RH.C0=clerp(RH.C0,cf(1,-1,0)*angles(math.rad(0),math.rad(50),math.rad(10))*angles(math.rad(-5),math.rad(0),math.rad(0)),.3)
 			RW.C0 = clerp(RW.C0,CFrame.new(1.40839434, 0.633969903, 0.140334338, 0.766044557, -0.642787576, 1.93715096e-06, 0.492405057, 0.586823642, -0.642787158, 0.41317451, 0.49240455, 0.766044974),0.3)
@@ -1562,8 +1589,6 @@ function ContAttack()
 	con:disconnect()
 	con2:disconnect()
 	scfr = nil
-	--tr1.Enabled = false
-	--tr2.Enabled = false
 	pcall(function()
 		hitconasdf:disconnect()
 		hitcon2asdf:disconnect()
@@ -1611,7 +1636,7 @@ local emotions = {
 	blink = "rbxassetid://140719110059829"
 }
 
-local speakingTextures = {
+local speaktxt = {
 	angry = "rbxassetid://120265646936913",
 	neutral = "rbxassetid://124616696573508",
 	blink = "rbxassetid://110245971364225"
@@ -1620,9 +1645,9 @@ local speakingTextures = {
 cemotion = "neutral"
 local resting = false
 local blinking = true
-local speaking = false -- Indicates whether the player is currently speaking
+local speaking = false
 
-local function updh(textureId)
+local function updh(txtid)
 	if not player.Character then return end
 
 	for _, accessory in ipairs(player.Character:GetChildren()) do
@@ -1631,7 +1656,7 @@ local function updh(textureId)
 			if handle then
 				local mesh = handle:FindFirstChildOfClass("SpecialMesh")
 				if mesh then
-					mesh.TextureId = textureId
+					mesh.TextureId = txtid
 				end
 			end
 		end
@@ -1650,7 +1675,7 @@ function blink()
 
 	updh(emotions["blink"])
 
-	task.delay(0.2, function()
+	task.delay(0.1, function()
 		updh(emotions[cemotion])
 	end)
 end
@@ -1672,14 +1697,12 @@ function speak(enabled)
 	if speaking then
 		spawn(function()
 			while speaking do
-				-- Determine the current emotion or resting state for the speaking texture
-				local currentEmotion = resting and "blink" or cemotion
+				local cemotion = resting and "blink" or cemotion
 
-				-- Alternate between the normal and speaking texture
-				if emotions[currentEmotion] and speakingTextures[currentEmotion] then
-					updh(speakingTextures[currentEmotion])
-					wait(0.1) -- Adjust the timing for faster/slower "speaking"
-					updh(emotions[currentEmotion])
+				if emotions[cemotion] and speaktxt[cemotion] then
+					updh(speaktxt[cemotion])
+					wait(0.1)
+					updh(emotions[cemotion])
 					wait(0.1)
 				else
 					break
@@ -1687,13 +1710,11 @@ function speak(enabled)
 			end
 		end)
 	else
-		-- Revert to the current emotion's normal texture when speaking stops
-		local currentEmotion = resting and "blink" or cemotion
-		updh(emotions[currentEmotion])
+		local cemotion = resting and "blink" or cemotion
+		updh(emotions[cemotion])
 	end
 end
 
--- Handle blinking
 spawn(function()
 	while true do
 		wait(math.random(3, 5))
@@ -1703,7 +1724,6 @@ spawn(function()
 	end
 end)
 
--- Set initial emotion and testing
 spawn(function() emotion("angry") end)
 spawn(function() setresting(false) end)
 spawn(function() speak(false) end)
@@ -1783,7 +1803,30 @@ mouse.KeyDown:connect(function(k)
 				end
 			end)
 			speak(true)
-			wait(1.1)
+			wait(1.5)
+			speakng = false
+			speak(false)
+			canspeak = true
+			mus:Stop()
+		end
+	elseif k=='u' then
+		if canspeak == true then
+			canspeak = false
+			musid = "rbxassetid://80213054222854"
+			mus.SoundId = musid
+			mus.PlaybackSpeed = 0.7
+			mus.TimePosition = 1.18
+			mus.Volume = 0.4
+			mus.Parent = Head
+			local speakng = true
+			spawn(function()
+				while speakng == true do
+					mus:Play()
+					wait(0.06)
+				end
+			end)
+			speak(true)
+			wait(0.15)
 			speakng = false
 			speak(false)
 			canspeak = true
@@ -1954,7 +1997,7 @@ while true do
 				handle2weld.C0 = clerp(handle2weld.C0, CFrame.new(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1), .3)
 			end
 			if attack == false and Sit == false and CurrentMode == "Sheathed" then
-				RootJoint.C0 = clerp(RootJoint.C0, RootCF * cf(0, 0, 0) * angles(math.rad(0), math.rad(0), math.rad(0)), .3) -- Changed from math.rad(10) to math.rad(0)
+				RootJoint.C0 = clerp(RootJoint.C0, RootCF * cf(0, 0, 0) * angles(math.rad(0), math.rad(0), math.rad(0)), .3)
 				Torso.Neck.C0 = clerp(Torso.Neck.C0, necko * angles(math.rad(-5), math.rad(0), math.rad(0)), .3)
 				RW.C0 = clerp(RW.C0, cf(1.5, 0.5, 0) * euler(math.rad(45 * math.cos(sine / 10)), math.rad(0), math.rad(5)), .3)
 				LW.C0 = clerp(LW.C0, cf(-1.5, 0.5, 0) * euler(math.rad(-45 * math.cos(sine / 10)), math.rad(0), math.rad(-5)), .3)
