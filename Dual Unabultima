@@ -408,6 +408,7 @@ Damagefunc=function(Part,hit,minim,maxim,knockback,Type,Property,Delay,Knockback
 				end
 			end
 		end
+
 		coroutine.resume(coroutine.create(function()
 			h.Parent:BreakJoints()
 			coroutine.resume(coroutine.create(function()
