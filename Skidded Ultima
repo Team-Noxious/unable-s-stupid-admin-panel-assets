@@ -1572,15 +1572,6 @@ function speak(enabled)
 	end
 end
 
---[[ spawn(function()
-	while true do
-		wait(math.random(3, 5))
-		if not resting and blinking then
-			blink()
-		end
-	end
-end) ]]--
-
 spawn(function() emotion("angry") end)
 spawn(function() setresting(false) end)
 spawn(function() speak(false) end)
