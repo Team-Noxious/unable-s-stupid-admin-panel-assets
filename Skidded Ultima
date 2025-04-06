@@ -1609,7 +1609,7 @@ end
 
 local Sit = false
 
-mouse.Button1Down:connect(function()
+--[[ mouse.Button1Down:connect(function()
 	if attack==false then
 		if attacktype==1 and CurrentMode == "Unsheathed" then
 			attack=true
@@ -1621,7 +1621,7 @@ mouse.Button1Down:connect(function()
 			attack2one()
 		end
 	end
-end)
+end) ]]--
 
 go = true
 local canspeak = true
