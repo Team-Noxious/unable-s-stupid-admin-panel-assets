@@ -1775,19 +1775,43 @@ local function createTool(name, action)
 end
 
 -- Create the tools and assign their actions
-createTool("attack 1", function()
-	if attack == false and attacktype == 1 and CurrentMode == "Unsheathed" then
-		attack = true
-		attacktype = 2
-		attackone()
+createTool("attack", function()
+	if attack==false then
+		if attacktype==1 and CurrentMode == "Unsheathed" then
+			attack=true
+			attacktype=2
+			attackone()
+		elseif attacktype==2 and CurrentMode == "Unsheathed" then
+			attack=true
+			attacktype=1
+			attack2one()
+		end
 	end
 end)
 
-createTool("attack 2", function()
-	if attack == false and attacktype == 2 and CurrentMode == "Unsheathed" then
-		attack = true
-		attacktype = 1
-		attack2one()
+createTool("toggle sheathe", function()
+	if attack == false and CurrentMode == "Unsheathed" then
+		go = false
+		Sheathe()
+		Humanoid.WalkSpeed = 16
+	elseif attack == false and Sit == false and CurrentMode == "Sheathed" then
+		go = false
+		Unsheathe()
+		go = true
+	end
+end)
+
+createTool("toggle sit (while sheathed)", function()
+	if attack == false and Sit == false and CurrentMode == "Sheathed" then
+		Sit = true
+		setresting(true)
+		go = false
+		Humanoid.WalkSpeed = 0
+	elseif attack == false and Sit == true and CurrentMode == "Sheathed" then
+		Sit = false
+		setresting(false)
+		go = false
+		Humanoid.WalkSpeed = 16
 	end
 end)
 
@@ -1806,40 +1830,6 @@ end)
 createTool("cont attack", function()
 	if attack == false and CurrentMode == "Unsheathed" then
 		ContAttack()
-	end
-end)
-
-createTool("sheathe", function()
-	if attack == false and CurrentMode == "Unsheathed" then
-		go = false
-		Sheathe()
-		Humanoid.WalkSpeed = 16
-	end
-end)
-
-createTool("unsheathe", function()
-	if attack == false and Sit == false and CurrentMode == "Sheathed" then
-		go = false
-		Unsheathe()
-		go = true
-	end
-end)
-
-createTool("sit (while sheathed)", function()
-	if attack == false and Sit == false and CurrentMode == "Sheathed" then
-		Sit = true
-		setresting(true)
-		go = false
-		Humanoid.WalkSpeed = 0
-	end
-end)
-
-createTool("stand (while sitting)", function()
-	if attack == false and Sit == true and CurrentMode == "Sheathed" then
-		Sit = false
-		setresting(false)
-		go = false
-		Humanoid.WalkSpeed = 16
 	end
 end)
 
