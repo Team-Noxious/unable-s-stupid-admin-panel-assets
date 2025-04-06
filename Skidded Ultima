@@ -1740,6 +1740,178 @@ mouse.KeyDown:connect(function(k)
 	end
 end)
 
+-- Function for creating tools that activate when equipped
+local function createTool(name, action)
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.RequiresHandle = true
+
+	-- Create a handle for the tool
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = Vector3.new(1, 1, 1)
+	handle.Transparency = 1
+	handle.Anchored = false
+	handle.CanCollide = false
+	handle.Parent = tool
+
+	-- Store the original parent (backpack)
+	local originalParent = game.Players.LocalPlayer.Backpack
+
+	-- Activate immediately when equipped
+	tool.Equipped:Connect(function()
+		action()
+
+		-- Unequip but keep in inventory
+		delay(0.1, function() -- Small delay prevents immediate re-equip
+			if tool and tool.Parent == game.Players.LocalPlayer.Character then
+				tool.Parent = originalParent
+			end
+		end)
+	end)
+
+	-- Add to player's backpack
+	tool.Parent = originalParent
+end
+
+-- Create the tools and assign their actions
+createTool("attack 1", function()
+	if attack == false and attacktype == 1 and CurrentMode == "Unsheathed" then
+		attack = true
+		attacktype = 2
+		attackone()
+	end
+end)
+
+createTool("attack 2", function()
+	if attack == false and attacktype == 2 and CurrentMode == "Unsheathed" then
+		attack = true
+		attacktype = 1
+		attack2one()
+	end
+end)
+
+createTool("scissor attack", function()
+	if attack == false and CurrentMode == "Unsheathed" then
+		Stab()
+	end
+end)
+
+createTool("flip attack", function()
+	if attack == false and CurrentMode == "Unsheathed" then
+		Spin()
+	end
+end)
+
+createTool("cont attack", function()
+	if attack == false and CurrentMode == "Unsheathed" then
+		ContAttack()
+	end
+end)
+
+createTool("sheathe", function()
+	if attack == false and CurrentMode == "Unsheathed" then
+		go = false
+		Sheathe()
+		Humanoid.WalkSpeed = 16
+	end
+end)
+
+createTool("unsheathe", function()
+	if attack == false and Sit == false and CurrentMode == "Sheathed" then
+		go = false
+		Unsheathe()
+		go = true
+	end
+end)
+
+createTool("sit (while sheathed)", function()
+	if attack == false and Sit == false and CurrentMode == "Sheathed" then
+		Sit = true
+		setresting(true)
+		go = false
+		Humanoid.WalkSpeed = 0
+	end
+end)
+
+createTool("stand (while sitting)", function()
+	if attack == false and Sit == true and CurrentMode == "Sheathed" then
+		Sit = false
+		setresting(false)
+		go = false
+		Humanoid.WalkSpeed = 16
+	end
+end)
+
+-- Create a tool for music toggle
+createTool("toggle music", function()
+	if Character:FindFirstChild("mus") ~= nil then
+		if mus.IsPlaying == true then
+			mus:Stop()
+		elseif mus.IsPaused == true then
+			mus:Play()
+		end
+	elseif Character:FindFirstChild("mus") == nil then
+		local mus = Instance.new("Sound", Character)
+		mus.Name = "mus"
+		mus.SoundId = musid
+		mus.Looped = true
+		mus.Volume = 1
+		mus:Play()
+	end
+end)
+
+-- Create tools for speech actions
+createTool("talk (short)", function()
+	if canspeak == true then
+		canspeak = false
+		musid = "rbxassetid://80213054222854"
+		mus.SoundId = musid
+		mus.PlaybackSpeed = 0.7
+		mus.TimePosition = 1.18
+		mus.Volume = 0.4
+		mus.Parent = Head
+		local speakng = true
+		spawn(function()
+			while speakng == true do
+				mus:Play()
+				wait(0.06)
+			end
+		end)
+		speak(true)
+		wait(1.5)
+		speakng = false
+		speak(false)
+		canspeak = true
+		mus:Stop()
+	end
+end)
+
+createTool("talk (long)", function()
+	if canspeak == true then
+		canspeak = false
+		musid = "rbxassetid://80213054222854"
+		mus.SoundId = musid
+		mus.PlaybackSpeed = 0.7
+		mus.TimePosition = 1.18
+		mus.Volume = 0.4
+		mus.Parent = Head
+		local speakng = true
+		spawn(function()
+			while speakng == true do
+				mus:Play()
+				wait(0.06)
+			end
+		end)
+		speak(true)
+		wait(0.15)
+		speakng = false
+		speak(false)
+		canspeak = true
+		mus:Stop()
+	end
+end)
+
 local sine = 0
 local change = 1
 local val = 0
