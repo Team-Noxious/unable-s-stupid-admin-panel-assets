@@ -1,6 +1,3 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
 local gui = Instance.new("ScreenGui")
 gui.Name = "Dominant executor"
 gui.Parent = game.CoreGui
