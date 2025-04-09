@@ -1843,7 +1843,7 @@ createTool("toggle music", function()
 end)
 
 -- Create tools for speech actions
-createTool("talk (short)", function()
+createTool("talk (long)", function()
 	if canspeak == true then
 		canspeak = false
 		musid = "rbxassetid://80213054222854"
@@ -1868,7 +1868,7 @@ createTool("talk (short)", function()
 	end
 end)
 
-createTool("talk (long)", function()
+createTool("talk (short)", function()
 	if canspeak == true then
 		canspeak = false
 		musid = "rbxassetid://80213054222854"
