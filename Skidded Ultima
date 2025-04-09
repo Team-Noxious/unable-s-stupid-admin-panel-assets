@@ -1488,13 +1488,13 @@ function Sheathe()
 end
 
 local emotions = {
-	angry = "rbxassetid://106552311877498",
+	angry = "rbxassetid://114905525024059",
 	neutral = "rbxassetid://16116369076",
 	blink = "rbxassetid://140719110059829"
 }
 
 local speaktxt = {
-	angry = "rbxassetid://120265646936913",
+	angry = "rbxassetid://120009922945165",
 	neutral = "rbxassetid://124616696573508",
 	blink = "rbxassetid://110245971364225"
 }
